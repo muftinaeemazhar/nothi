@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeenRise.com — Invoice Maker</title>
+<style>
+:root{--ff:"Segoe UI","Noto Sans Bengali","Nirmala UI",Kalpurush,"Noto Naskh Arabic",Tahoma,system-ui,-apple-system,Roboto,Arial,sans-serif;--bg:#F1EFE6;--sf:#fff;--in:#FBFAF5;--tx:#1B1F1D;--mu:#5C655F;--ln:#D9D5C7;--br:#0B5D4B;--bt:#fff;--gd:#A8843E;--r:6px}
+[data-theme=dark]{--bg:#101311;--sf:#1A1F1C;--in:#131715;--tx:#E9E6DB;--mu:#9CA59F;--ln:#2D3430;--br:#3AAA8A;--bt:#06130F;--gd:#CDA95F}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 var(--ff)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gd);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 18px;background:var(--sf);border-bottom:1px solid var(--ln)}
+.logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo b{display:block;line-height:1.1;font-size:16px}.logo small{color:var(--mu);font-size:12px}
+.mk{display:grid;place-items:center;width:34px;height:34px;border-radius:5px;background:var(--br);color:var(--bt);font-weight:700;border-bottom:3px solid var(--gd)}
+.saved{color:var(--mu);font-size:12px}
+.acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.btn{border:1px solid var(--ln);background:var(--sf);border-radius:var(--r);padding:5px 12px;cursor:pointer;min-height:34px}
+.btn:hover{border-color:var(--br)}
+.pri{background:var(--br);border-color:var(--br);color:var(--bt);font-weight:600}
+.dng{color:#B3261E}[data-theme=dark] .dng{color:#F2877F}
+.more{position:relative}.more summary{list-style:none;display:flex;align-items:center}.more summary::-webkit-details-marker{display:none}
+.menu{position:absolute;right:0;top:40px;z-index:6;min-width:180px;display:grid;gap:4px;padding:8px;background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.menu .btn{text-align:left}
+.editor{padding:14px}.pv{padding:14px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--ln);margin-bottom:14px}
+.tabs button{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent}
+.tabs [aria-selected=true]{color:var(--tx);border-color:var(--gd);font-weight:600}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 8px;font-size:15px;color:var(--br)}[data-theme=dark] .card h2{color:var(--gd)}
+.hint{margin:0 0 8px;color:var(--mu);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.w,.w2{grid-column:1/-1}
+.f{display:grid;gap:3px;font-size:12px;color:var(--mu);align-content:start}
+input,select,textarea{width:100%;padding:7px 9px;border:1px solid var(--ln);border-radius:var(--r);background:var(--in);color:var(--tx)}
+.item{border:1px solid var(--ln);border-radius:var(--r);padding:10px;margin-bottom:10px;display:grid;gap:8px}
+.ih{display:flex;align-items:center;gap:6px}.ih .amt{margin-right:auto}
+.ib{width:32px;height:32px;border:1px solid var(--ln);border-radius:var(--r);background:var(--sf);cursor:pointer}
+.g5{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;border:1px solid var(--ln);border-radius:var(--r);padding:10px;margin-bottom:8px;background:var(--sf)}
+.row small{color:var(--mu)}
+.issues{border:1px solid var(--gd);border-radius:var(--r);padding:8px 12px;margin-bottom:12px;background:var(--sf);font-size:13px}
+.toasts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:grid;gap:6px;z-index:20}
+.toast{background:#1B1F1D;color:#fff;padding:8px 14px;border-radius:var(--r);border-left:3px solid var(--gd)}
+dialog{border:1px solid var(--ln);border-radius:var(--r);background:var(--sf);color:var(--tx);max-width:380px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+@media(min-width:981px){
+body{display:flex;flex-direction:column;height:100vh}
+.app{flex:1;min-height:0;display:grid;grid-template-columns:minmax(380px,500px) 1fr;grid-template-rows:minmax(0,1fr)}
+.editor,.pv{overflow:auto;padding:18px}.editor{border-right:1px solid var(--ln)}}
+@media print{.top,.editor,.toasts,dialog{display:none!important}body{display:block;height:auto;background:#fff}.app{display:block}.pv{padding:0;overflow:visible}}
+</style>
+<style id="sheet-css">
+@page{size:A4;margin:14mm}
+.sheet{--b:#0B5D4B;--g:#A8843E;font-family:var(--ff);background:#fff;color:#1B1F1D;font-size:12.5px;line-height:1.5;padding:34px 38px;max-width:820px;margin:0 auto;border:1px solid #D9D5C7;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sheet *{box-sizing:border-box}
+.sheet .hd{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid var(--b)}
+.sheet .wm{font-size:21px;font-weight:700;color:var(--b)}
+.sheet .rule{width:42px;height:2px;background:var(--g);margin:4px 0 8px}
+.sheet h1{margin:0 0 4px;font-size:26px;color:var(--b);text-align:right}
+.sheet .r{text-align:right}.sheet .mu{color:#5C655F}
+.sheet .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px}
+.sheet h3{margin:0 0 4px;font-size:12px;color:var(--g)}
+.sheet .pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.sheet .tw{overflow-x:auto;margin-top:18px}
+.sheet table{width:100%;border-collapse:collapse}
+.sheet th{padding:7px 6px;border-bottom:2px solid var(--b);color:var(--b);font-size:11.5px;text-align:right}
+.sheet td{padding:8px 6px;border-bottom:1px solid #E6E2D6;text-align:right;vertical-align:top}
+.sheet th:nth-child(2),.sheet td:nth-child(2),.sheet th:first-child,.sheet td:first-child{text-align:left}
+.sheet td:nth-child(2){width:36%}
+.sheet .sum{margin:14px 0 0 auto;width:min(100%,310px);break-inside:avoid}
+.sheet .sum div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+.sheet .sum .tot{border-top:2px solid var(--b);margin-top:4px;padding-top:6px;font-size:15px;font-weight:700;color:var(--b)}
+.sheet .blk{margin-top:16px;break-inside:avoid}
+.sheet .ft{margin-top:26px;padding-top:10px;border-top:1px solid #D9D5C7;text-align:center;color:#5C655F;font-size:11.5px;break-inside:avoid}
+.sheet .ty{color:var(--b);font-weight:600}
+.badge{display:inline-block;border:1px solid currentColor;border-radius:4px;padding:0 8px;font-size:12px;font-weight:600}
+.sheet .s-draft,.sheet .s-cancelled{color:#555}.sheet .s-unpaid,.sheet .s-partially{color:#8A5A00}.sheet .s-paid{color:#0B6B3A}.sheet .s-overdue{color:#A12626}
+@media(max-width:600px){.sheet{padding:18px}.sheet .cols{grid-template-columns:1fr}.sheet .r,.sheet h1{text-align:left}}
+@media print{.sheet{border:0;padding:0;max-width:none}.sheet thead{display:table-header-group}.sheet tr{break-inside:avoid}.sheet .tw{overflow:visible}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="logo"><span class="mk" aria-hidden="true">DR</span><div><b>DeenRise.com</b><small>Professional invoice maker</small></div></div>
+ <span id="saved" class="saved" role="status" aria-live="polite"></span>
+ <nav class="acts" aria-label="Invoice actions">
+  <button class="btn" data-act="new">New invoice</button>
+  <button class="btn pri" data-act="save">Save invoice</button>
+  <button class="btn" data-act="load">Load invoice</button>
+  <button class="btn" data-act="print">Print</button>
+  <button class="btn" data-act="pdf">Download PDF</button>
+  <details class="more"><summary class="btn">More</summary><div class="menu">
+   <button class="btn" data-act="dup">Duplicate invoice</button>
+   <button class="btn" data-act="html">Export HTML</button>
+   <button class="btn" data-act="json">Export JSON</button>
+   <button class="btn" data-act="import">Import JSON</button>
+   <button class="btn dng" data-act="clear">Clear invoice</button></div></details>
+  <button class="btn" data-act="theme" aria-label="Switch light or dark theme">Theme</button>
+ </nav>
+</header>
+<main class="app">
+ <section class="editor" id="editor" aria-label="Invoice editor"></section>
+ <section class="pv" id="pv" aria-label="Invoice preview"></section>
+</main>
+<input type="file" id="file" accept=".json,application/json" hidden aria-label="Import JSON backup">
+<dialog id="dlg"><form method="dialog"><p id="dmsg"></p><div class="acts"><button class="btn" value="cancel">Cancel</button><button class="btn pri" id="dok" value="ok"></button></div></form></dialog>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+function h(tag,p,...kids){const e=document.createElement(tag);for(const k in p||{}){const v=p[k];if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(k==='class')e.className=v;else if(v!==false&&v!=null)e.setAttribute(k,v)}for(const c of kids.flat(9))if(c!=null&&c!==false)e.append(c);return e}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const get=(o,p)=>p.split('.').reduce((a,k)=>a&&a[k],o);
+const set=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x],o)[l]=v};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const today=()=>addDays(0);
+const fd=s=>{const d=new Date(s+'T00:00:00');return s&&!isNaN(d)?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'};
+const store={get(k,d){try{const v=localStorage.getItem('dr_'+k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem('dr_'+k,JSON.stringify(v));return true}catch{return false}}};
+const arr=k=>{const v=store.get(k,[]);return Array.isArray(v)?v:[]};
+function toast(m){const t=h('div',{class:'toast'},m);$('#toasts').append(t);setTimeout(()=>t.remove(),3000)}
+function ask(msg,ok){return new Promise(res=>{const d=$('#dlg');$('#dmsg').textContent=msg;$('#dok').textContent=ok;d.returnValue='';d.onclose=()=>res(d.returnValue==='ok');d.showModal()})}
+function download(name,text,type){const a=h('a',{href:URL.createObjectURL(new Blob([text],{type:type+';charset=utf-8'})),download:name});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+/* ---------- data & defaults ---------- */
+const CUR={BDT:['৳','Bangladeshi Taka','Paisa'],USD:['$','US Dollars','Cents'],EUR:['€','Euros','Cents'],GBP:['£','Pounds Sterling','Pence'],INR:['₹','Indian Rupees','Paise'],SAR:['SAR','Saudi Riyals','Halalas'],AED:['AED','UAE Dirhams','Fils'],QAR:['QAR','Qatari Riyals','Dirhams']};
+const STATUS=['Draft','Unpaid','Partially Paid','Paid','Overdue','Cancelled'];
+const GLYPH={draft:'◌',unpaid:'○',partially:'◐',paid:'✓',overdue:'!',cancelled:'✕'};
+const DEF_CFG={name:'DeenRise.com',web:'DeenRise.com',address:'Uttara, Dhaka, Bangladesh',phone:'01626211926',email:'admin@deenrise.com',taxId:'',prefix:'DR',currency:'BDT',curPos:'before',taxRate:'0',payMethod:'Bank Transfer',terms:'Payment is due by the due date shown. Please quote the invoice number as your payment reference.',footer:'Thank you for doing business with DeenRise.'};
+const S={cfg:null,inv:null,cust:null,custId:null,customers:[],history:[],counter:{}};
+const blankCust=()=>({id:'',name:'',company:'',address:'',phone:'',email:'',tax:'',notes:''});
+const blankItem=()=>({id:uid(),name:'',desc:'',qty:'1',price:'',disc:'',dt:'%',tax:S.cfg.taxRate});
+const blankInvoice=(number='')=>({id:uid(),number,date:today(),due:'',status:'Draft',currency:S.cfg.currency,custom:'',curPos:S.cfg.curPos,customer:{name:'',company:'',address:'',phone:'',email:'',tax:''},items:[blankItem()],gDisc:'',gType:'%',extraLabel:'Service Charge',extra:'',payMethod:S.cfg.payMethod,payInfo:'',notes:'',terms:S.cfg.terms,updated:0});
+function coerce(d,x){if(Array.isArray(d))return d;if(d&&typeof d==='object'){const o={};for(const k in d)o[k]=coerce(d[k],x&&typeof x==='object'?x[k]:undefined);return o}if(typeof d==='string'&&typeof x==='number'&&isFinite(x))return String(x);return typeof x===typeof d&&(typeof x!=='number'||isFinite(x))?x:d}
+function normInv(x){if(!x||typeof x!=='object')return null;const o=coerce(blankInvoice(),x);if(!o.number.trim())return null;o.items=(Array.isArray(x.items)?x.items:[]).slice(0,500).map(i=>({...coerce(blankItem(),i),id:uid()}));o.id=o.id||uid();return o}
+
+/* ---------- numbering ---------- */
+function newNumber(){const ds=today().replace(/-/g,''),key=S.cfg.prefix+ds,used=new Set(S.history.map(v=>v.number));let n=S.counter[key]||0,num;do{n++;num=`${S.cfg.prefix}-${ds}-${String(n).padStart(3,'0')}`}while(used.has(num));S.counter[key]=n;store.set('counter',S.counter);return num}
+
+/* ---------- calculations ---------- */
+const num=v=>{const n=parseFloat(v);return Number.isFinite(n)?n:0};
+const pos=v=>Math.max(0,num(v));
+const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
+const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+function calc(inv){
+ const rows=inv.items.map(it=>{const sub=pos(it.qty)*pos(it.price),dv=pos(it.disc),d=it.dt==='%'?sub*Math.min(100,dv)/100:Math.min(sub,dv);return{sub,d,net:sub-d,rate:pos(it.tax)}});
+ const subtotal=sum(rows,r=>r.sub),itemDisc=sum(rows,r=>r.d),net=subtotal-itemDisc,gv=pos(inv.gDisc);
+ const gDisc=inv.gType==='%'?net*Math.min(100,gv)/100:Math.min(net,gv);
+ // invoice discount is spread across lines before tax, so tax is never charged on discounted value twice
+ const tax=sum(rows,r=>(net?r.net-r.net/net*gDisc:0)*r.rate/100),extra=pos(inv.extra);
+ return{rows,subtotal:r2(subtotal),itemDisc:r2(itemDisc),gDisc:r2(gDisc),tax:r2(tax),extra:r2(extra),total:r2(net-gDisc+tax+extra)}}
+const cur=(i=S.inv)=>{const c=(i.custom||'').trim().toUpperCase(),code=c||i.currency,t=CUR[code]||[code,code,'Cents'];return{code,sym:t[0],name:t[1],minor:t[2]}};
+const nf=new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=(n,i=S.inv)=>{const c=cur(i),s=nf.format(n);return i.curPos==='after'?`${s} ${c.sym}`:`${c.sym} ${s}`};
+const ONES=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+const TENS=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+function words(n,ind){
+ if(n<20)return ONES[n];
+ if(n<100)return TENS[Math.floor(n/10)]+(n%10?' '+ONES[n%10]:'');
+ if(n<1000)return ONES[Math.floor(n/100)]+' Hundred'+(n%100?' '+words(n%100,ind):'');
+ const U=ind?[[1e7,'Crore'],[1e5,'Lakh'],[1e3,'Thousand']]:[[1e12,'Trillion'],[1e9,'Billion'],[1e6,'Million'],[1e3,'Thousand']];
+ for(const[v,l]of U)if(n>=v)return words(Math.floor(n/v),ind)+' '+l+(n%v?' '+words(n%v,ind):'')}
+function amountWords(t,i){const c=cur(i),p=Math.round(t*100),w=Math.floor(p/100),m=p%100;if(w>=1e15)return'';const ind=c.code==='BDT'||c.code==='INR';return words(w,ind)+' '+c.name+(m?' and '+words(m,ind)+' '+c.minor:'')+' Only'}
+
+/* ---------- preview ---------- */
+function renderPreview(c){
+ const i=S.inv,g=S.cfg,m=n=>money(n,i),cu=i.customer,sk=i.status.split(' ')[0].toLowerCase(),w=amountWords(c.total,i);
+ const ln=(t,cls)=>t&&t.trim()?h('div',{class:cls||''},t):null;
+ const sr=(l,v,cls)=>h('div',{class:cls||''},h('span',null,l),h('span',null,v));
+ const rows=i.items.map((t,n)=>{const r=c.rows[n];return h('tr',null,h('td',null,n+1),h('td',null,h('b',{class:'pre'},t.name||'—'),t.desc&&h('div',{class:'pre mu'},t.desc)),h('td',null,pos(t.qty)),h('td',null,m(pos(t.price))),h('td',null,r.d?(t.dt==='%'?Math.min(100,pos(t.disc))+'%':m(r.d)):'—'),h('td',null,r.rate?r.rate+'%':'—'),h('td',null,m(r.net)))});
+ const sheet=h('article',{class:'sheet',id:'sheet'},
+  h('div',{class:'hd'},
+   h('div',null,h('div',{class:'wm'},g.name),h('div',{class:'rule'}),ln(g.address),ln(g.phone&&'Phone: '+g.phone),ln(g.email&&'Email: '+g.email),ln(g.web&&g.web!==g.name?g.web:''),ln(g.taxId&&'Tax/VAT ID: '+g.taxId)),
+   h('div',{class:'r'},h('h1',null,'INVOICE'),h('div',null,'No. ',h('b',null,i.number)),h('div',{class:'mu'},'Issue date: '+fd(i.date)),h('div',{class:'mu'},'Due date: '+fd(i.due)),h('div',{style:'margin-top:6px'},h('span',{class:'badge s-'+sk},GLYPH[sk]+' '+i.status)))),
+  h('div',{class:'cols'},
+   h('div',null,h('h3',null,'Bill to'),h('b',{class:'pre'},cu.name||'—'),ln(cu.company,'pre'),ln(cu.address,'pre'),ln(cu.phone&&'Phone: '+cu.phone),ln(cu.email&&'Email: '+cu.email),ln(cu.tax&&'Tax/VAT ID: '+cu.tax)),
+   h('div',null,h('h3',null,'Payment'),h('div',null,'Method: '+(i.payMethod||'—')),ln(i.payInfo,'pre'),h('div',null,'Currency: '+cur(i).code))),
+  h('div',{class:'tw'},h('table',null,h('thead',null,h('tr',null,['#','Item / Service','Qty','Unit price','Discount','Tax','Amount'].map(x=>h('th',null,x)))),h('tbody',null,rows.length?rows:h('tr',null,h('td',{colspan:7},'No items added'))))),
+  h('div',{class:'sum'},sr('Subtotal',m(c.subtotal)),c.itemDisc>0&&sr('Item discounts','− '+m(c.itemDisc)),c.gDisc>0&&sr('Invoice discount','− '+m(c.gDisc)),sr('Tax',m(c.tax)),c.extra>0&&sr(i.extraLabel||'Additional charges',m(c.extra)),sr('Total',m(c.total),'tot')),
+  w&&h('div',{class:'blk'},h('h3',null,'Amount in words'),h('b',null,w)),
+  i.notes.trim()&&h('div',{class:'blk'},h('h3',null,'Notes'),h('div',{class:'pre'},i.notes)),
+  i.terms.trim()&&h('div',{class:'blk'},h('h3',null,'Terms & conditions'),h('div',{class:'pre'},i.terms)),
+  h('div',{class:'ft'},h('div',{class:'ty'},g.footer),h('div',null,[g.name,g.address,g.phone,g.email].filter(Boolean).join(' · '))));
+ $('#pv').replaceChildren(sheet)}
+
+/* ---------- editor ---------- */
+const L=(lab,k,o={})=>{const a={'data-k':k};let el;
+ if(o.sel)el=h('select',a,o.sel.map(x=>h('option',{value:x[0]},x[1])));
+ else if(o.rows)el=h('textarea',{...a,rows:o.rows,placeholder:o.ph});
+ else el=h('input',{...a,type:o.type||'text',placeholder:o.ph,list:o.list,inputmode:o.m,min:o.min,step:o.step});
+ return h('label',{class:'f '+(o.c||'')},h('span',null,lab),el)};
+const opts=a=>a.map(x=>[x,x]);
+const sec=(t,hint,...k)=>h('section',{class:'card'},h('h2',null,t),hint&&h('p',{class:'hint'},hint),h('div',{class:'grid'},k));
+const B=(t,fn,c='')=>h('button',{type:'button',class:'btn '+c,onclick:fn},t);
+const N={type:'number',m:'decimal',min:0,step:'any'};
+const CUROPTS=Object.keys(CUR).map(k=>[k,k+' — '+CUR[k][1]]);
+const POS=[['before','Before amount'],['after','After amount']];
+const DT=[['%','Percentage (%)'],['fixed','Fixed amount']];
+let custSel,amts=[];
+
+function buildInvoice(){
+ custSel=h('select',{'aria-label':'Select a saved customer',onchange:()=>{const c=S.customers.find(x=>x.id===custSel.value);if(c)useCust(c)}});
+ return h('div',{id:'p-invoice'},h('div',{id:'issues',class:'issues',role:'status'}),
+  sec('Invoice details','The number is generated for you. Edit it any time.',
+   L('Invoice number','inv.number'),h('div',{class:'f'},h('span',null,'Numbering'),B('Generate next number',()=>{S.inv.number=newNumber();syncForm();update()})),
+   L('Issue date','inv.date',{type:'date'}),L('Due date','inv.due',{type:'date'}),L('Payment status','inv.status',{sel:opts(STATUS)}),
+   L('Currency','inv.currency',{sel:CUROPTS}),L('Custom currency code (optional)','inv.custom',{ph:'e.g. MYR'}),L('Currency position','inv.curPos',{sel:POS})),
+  sec('Customer details','Pick a saved customer or type new details. Bangla and English both work.',
+   h('label',{class:'f w'},h('span',null,'Saved customers'),custSel),
+   L('Name','inv.customer.name'),L('Company','inv.customer.company'),L('Address','inv.customer.address',{rows:2,c:'w'}),L('Phone','inv.customer.phone',{ph:'01XXXXXXXXX'}),L('Email','inv.customer.email',{type:'email'}),L('Tax/VAT ID','inv.customer.tax'),
+   h('div',{class:'w2'},B('Save to customers',custFromInvoice))),
+  sec('Items','Set tax per item. Empty numbers count as zero.',h('div',{id:'items',class:'w2'}),
+   h('div',{class:'w2 acts'},B('Add item',()=>{S.inv.items.push(blankItem());renderItems();update()},'pri'),B('Apply default tax to all items',()=>{S.inv.items.forEach(t=>t.tax=S.cfg.taxRate);renderItems();update()}))),
+  sec('Discounts & charges','The invoice discount is shared across items before tax.',
+   L('Invoice discount','inv.gDisc',N),L('Discount type','inv.gType',{sel:DT}),L('Extra charge label','inv.extraLabel'),L('Extra charge amount','inv.extra',N)),
+  sec('Payment',null,L('Payment method','inv.payMethod',{list:'pm'}),h('datalist',{id:'pm'},['Bank Transfer','bKash','Nagad','Rocket','Cash','Card','Cheque'].map(x=>h('option',{value:x}))),L('Payment details (account, number)','inv.payInfo',{rows:3,c:'w'})),
+  sec('Notes & terms',null,L('Notes','inv.notes',{rows:3,c:'w'}),L('Terms & conditions','inv.terms',{rows:4,c:'w'})))}
+
+function buildCust(){return h('div',{id:'p-customers',hidden:true},
+ sec('Customer','Customers are stored only in this browser.',L('Name','cust.name'),L('Company','cust.company'),L('Address','cust.address',{rows:2,c:'w'}),L('Phone','cust.phone',{ph:'01XXXXXXXXX'}),L('Email','cust.email',{type:'email'}),L('Tax/VAT ID','cust.tax'),L('Notes','cust.notes',{rows:2,c:'w'}),
+  h('div',{class:'w2 acts'},B('Save customer',saveCust,'pri'),B('Clear form',()=>{S.cust=blankCust();S.custId=null;syncForm()}))),
+ h('input',{type:'search',id:'cq','aria-label':'Search customers',placeholder:'Search by name, company, phone or email',oninput:renderCustomers}),h('div',{id:'clist',style:'margin-top:10px'}))}
+const buildHistory=()=>h('div',{id:'p-history',hidden:true},h('p',{class:'hint'},'Saved invoices live in this browser. Use More → Export JSON to keep a backup.'),h('div',{id:'hlist'}));
+const buildSettings=()=>h('div',{id:'p-settings',hidden:true},
+ sec('Business details','Shown on every invoice.',L('Business name','cfg.name'),L('Website','cfg.web'),L('Address','cfg.address',{rows:2,c:'w'}),L('Phone','cfg.phone'),L('Email','cfg.email',{type:'email'}),L('Tax/VAT number','cfg.taxId')),
+ sec('Defaults for new invoices','Changes apply to the next invoice you create.',L('Invoice prefix','cfg.prefix'),L('Default currency','cfg.currency',{sel:CUROPTS}),L('Currency position','cfg.curPos',{sel:POS}),L('Default tax rate (%)','cfg.taxRate',N),L('Default payment method','cfg.payMethod'),L('Default terms','cfg.terms',{rows:3,c:'w'}),L('Footer text','cfg.footer',{c:'w'})));
+
+function renderItems(){
+ const box=$('#items');box.replaceChildren();amts=[];
+ S.inv.items.forEach((it,i)=>{
+  const ic=(lab,f,o={})=>{const el=o.sel?h('select',null,o.sel.map(x=>h('option',{value:x[0]},x[1]))):o.rows?h('textarea',{rows:2}):h('input',{type:o.type||'text',inputmode:o.m,min:o.min,step:o.step});el.value=it[f];el.addEventListener('input',()=>{it[f]=el.value;update()});return h('label',{class:'f'},h('span',null,lab),el)};
+  const ib=(sym,t,fn)=>h('button',{type:'button',class:'ib',title:t,'aria-label':t+' (item '+(i+1)+')',onclick:fn},sym);
+  const amt=h('b',{class:'amt'});amts.push(amt);
+  box.append(h('div',{class:'item'},
+   h('div',{class:'ih'},h('span',null,'Item '+(i+1)),amt,ib('↑','Move up',()=>mv(i,-1)),ib('↓','Move down',()=>mv(i,1)),ib('⧉','Duplicate item',()=>{S.inv.items.splice(i+1,0,{...it,id:uid()});renderItems();update()}),ib('✕','Delete item',()=>{S.inv.items.splice(i,1);renderItems();update()})),
+   ic('Item / Service','name'),ic('Description','desc',{rows:2}),
+   h('div',{class:'g5'},ic('Qty','qty',N),ic('Unit price','price',N),ic('Discount','disc',N),ic('Discount type','dt',{sel:[['%','%'],['fixed','Fixed']]}),ic('Tax %','tax',N))))});}
+function mv(i,d){const a=S.inv.items,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];renderItems();update()}
+function syncForm(){document.querySelectorAll('[data-k]').forEach(el=>{const v=get(S,el.dataset.k);el.value=v==null?'':v})}
+
+function renderIssues(c){
+ const i=S.inv,a=[],ph=i.customer.phone.replace(/[\s-]/g,''),it=i.items;
+ if(!it.length)a.push('Add at least one item.');
+ if(!i.date)a.push('Issue date is missing.');
+ if(it.some(t=>num(t.qty)<0||num(t.price)<0||num(t.disc)<0||num(t.tax)<0)||num(i.gDisc)<0||num(i.extra)<0)a.push('Negative values are treated as 0.');
+ if(it.some(t=>t.dt==='%'&&num(t.disc)>100)||(i.gType==='%'&&num(i.gDisc)>100))a.push('Percentage discounts above 100% are capped at 100%.');
+ if(i.due&&i.date&&i.due<i.date)a.push('Due date is before the issue date.');
+ if(i.customer.email&&!/^\S+@\S+\.\S+$/.test(i.customer.email))a.push('Customer email looks invalid.');
+ if(ph&&!ph.startsWith('+')&&!/^(88)?01[3-9]\d{8}$/.test(ph))a.push('Phone is not in Bangladeshi format (01XXXXXXXXX). Ignore this if the number is international.');
+ if(c.total>1e12)a.push('The total is extremely large. Please check the amounts.');
+ const b=$('#issues');b.replaceChildren(...a.map(x=>h('div',null,'⚠ '+x)));b.hidden=!a.length}
+
+let tm;
+function schedSave(){const s=$('#saved');s.textContent='Saving…';clearTimeout(tm);tm=setTimeout(()=>{s.textContent=store.set('draft',S.inv)?'✓ Auto-saved':'Storage unavailable. Export JSON to back up.'},600)}
+function update(){const c=calc(S.inv);amts.forEach((e,n)=>{if(c.rows[n])e.textContent=money(c.rows[n].net)});renderPreview(c);renderIssues(c);schedSave()}
+function load(inv){S.inv=inv;syncForm();renderItems();update();tab('invoice')}
+
+/* ---------- tabs, customers, history ---------- */
+const TABS=[['invoice','Invoice'],['customers','Customers'],['history','History'],['settings','Settings']];
+function tab(id){TABS.forEach(([k])=>{const on=k===id;$('#t-'+k).setAttribute('aria-selected',on);$('#p-'+k).hidden=!on});if(id==='history')renderHistory();if(id==='customers')renderCustomers()}
+function refreshCustSel(){custSel.replaceChildren(h('option',{value:''},'Select saved customer…'),S.customers.map(c=>h('option',{value:c.id},c.name||c.company)))}
+function useCust(c){Object.assign(S.inv.customer,{name:c.name,company:c.company,address:c.address,phone:c.phone,email:c.email,tax:c.tax});syncForm();update()}
+function putCust(o){const k=S.customers.findIndex(x=>x.id===o.id);k<0?S.customers.push(o):S.customers[k]=o;store.set('customers',S.customers);refreshCustSel();renderCustomers();toast('Customer saved')}
+function saveCust(){const c=S.cust;if(!c.name.trim()&&!c.company.trim())return toast('Enter a name or company first.');if(c.email&&!/^\S+@\S+\.\S+$/.test(c.email))return toast('That email address looks invalid.');putCust({...c,id:S.custId||uid()});S.cust=blankCust();S.custId=null;syncForm()}
+function custFromInvoice(){const c=S.inv.customer;if(!c.name.trim()&&!c.company.trim())return toast('Enter customer details first.');const old=S.customers.find(x=>x.name===c.name&&x.email===c.email);putCust({...blankCust(),notes:old?old.notes:'',...c,id:old?old.id:uid()})}
+function renderCustomers(){const q=($('#cq').value||'').toLowerCase(),box=$('#clist');box.replaceChildren();
+ const l=S.customers.filter(c=>[c.name,c.company,c.phone,c.email].join(' ').toLowerCase().includes(q));
+ if(!l.length)box.append(h('p',{class:'hint'},S.customers.length?'No customers match your search.':'No customers yet. Fill in the form above and save one.'));
+ l.forEach(c=>box.append(h('div',{class:'row'},h('div',null,h('b',null,c.name||c.company),h('br'),h('small',null,[c.name&&c.company,c.phone,c.email].filter(Boolean).join(' · '))),
+  h('div',{class:'acts'},B('Use on invoice',()=>{useCust(c);tab('invoice')}),B('Edit',()=>{S.cust={...c};S.custId=c.id;syncForm()}),
+   B('Delete',async()=>{if(await ask('Delete customer “'+(c.name||c.company)+'”?','Delete')){S.customers=S.customers.filter(x=>x.id!==c.id);store.set('customers',S.customers);renderCustomers();refreshCustSel()}},'dng')))))}
+function dupInv(src){const c=clone(src);c.id=uid();c.number=newNumber();c.status='Draft';c.date=today();c.due='';c.items.forEach(t=>t.id=uid());load(c);toast('Duplicated as '+c.number+'. Save to keep it.')}
+function renderHistory(){const box=$('#hlist');box.replaceChildren();
+ if(!S.history.length)box.append(h('p',{class:'hint'},'No saved invoices yet. Select Save invoice to add the current one.'));
+ [...S.history].sort((a,b)=>b.updated-a.updated).forEach(v=>{const sk=v.status.split(' ')[0].toLowerCase();
+  box.append(h('div',{class:'row'},h('div',null,h('b',null,v.number),' ',h('span',{class:'badge'},(GLYPH[sk]||'')+' '+v.status),h('br'),h('small',null,(v.customer.name||v.customer.company||'No customer')+' · '+fd(v.date)+' · '+money(calc(v).total,v))),
+   h('div',{class:'acts'},B('View',()=>{load(clone(v));$('#pv').scrollIntoView()}),B('Edit',()=>load(clone(v))),B('Duplicate',()=>dupInv(v)),
+    B('Delete',async()=>{if(await ask('Delete invoice '+v.number+'? This cannot be undone.','Delete')){S.history=S.history.filter(x=>x.id!==v.id);store.set('history',S.history);renderHistory()}},'dng'))))})}
+
+/* ---------- actions ---------- */
+function saveInvoice(){const i=S.inv;i.number=i.number.trim();
+ if(!i.number)return toast('Enter an invoice number before saving.');
+ if(S.history.some(x=>x.id!==i.id&&x.number===i.number))return toast('Another saved invoice already uses '+i.number+'. Change the number to save.');
+ i.updated=Date.now();const c=clone(i),k=S.history.findIndex(x=>x.id===i.id);k<0?S.history.push(c):S.history[k]=c;
+ toast(store.set('history',S.history)?'Saved '+i.number:'Browser storage is unavailable. Use Export JSON to back up.');update()}
+const A={
+ async new(){if(await ask('Start a new invoice? The current draft will be replaced. Saved invoices are kept.','Start new'))load(blankInvoice(newNumber()))},
+ save:saveInvoice,load(){tab('history')},print(){window.print()},
+ pdf(){toast('In the print dialog, choose “Save as PDF” as the destination.');setTimeout(()=>window.print(),500)},
+ dup(){dupInv(S.inv)},
+ html(){download(S.inv.number+'.html','<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(S.inv.number)+'</title><style>:root{--ff:'+getComputedStyle(document.documentElement).getPropertyValue('--ff')+'}body{margin:0;padding:16px;background:#F1EFE6}'+$('#sheet-css').textContent+'</style></head><body>'+$('#sheet').outerHTML+'</body></html>','text/html')},
+ json(){download('deenrise-invoices-'+today()+'.json',JSON.stringify({app:'DeenRise Invoice Maker',version:1,settings:S.cfg,customers:S.customers,invoices:S.history},null,1),'application/json')},
+ import(){$('#file').click()},
+ async clear(){if(await ask('Clear every field of this invoice?','Clear invoice')){load({...blankInvoice(S.inv.number),id:S.inv.id});toast('Invoice cleared')}},
+ theme(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}};
+function setTheme(t){document.documentElement.dataset.theme=t;store.set('theme',t)}
+
+async function importFile(e){const f=e.target.files[0];e.target.value='';if(!f)return;
+ try{if(f.size>8e6)throw 0;const d=JSON.parse(await f.text());
+  const list=(Array.isArray(d)?d:Array.isArray(d.invoices)?d.invoices:[d]).map(normInv).filter(Boolean);if(!list.length)throw 0;
+  list.forEach(x=>{const k=S.history.findIndex(y=>y.id===x.id);k<0?S.history.push(x):S.history[k]=x});
+  if(Array.isArray(d.customers))d.customers.forEach(c=>{const n=coerce(blankCust(),c);if(!n.name&&!n.company)return;n.id=n.id||uid();if(!S.customers.some(x=>x.id===n.id))S.customers.push(n)});
+  if(d.settings&&typeof d.settings==='object'&&!Array.isArray(d.settings)){S.cfg=coerce(DEF_CFG,d.settings);store.set('cfg',S.cfg)}
+  store.set('history',S.history);store.set('customers',S.customers);refreshCustSel();syncForm();update();renderHistory();toast('Imported '+list.length+' invoice(s)')}
+ catch{toast('That file is not a valid DeenRise backup, so nothing was imported.')}}
+
+function sample(){const i=blankInvoice(newNumber()),it=(name,desc,qty,price,disc)=>({...blankItem(),name,desc,qty,price,disc,tax:'0'});
+ return Object.assign(i,{status:'Unpaid',due:addDays(14),customer:{name:'Sample Customer (fictional)',company:'Example Traders Ltd.',address:'House 00, Road 00, Sample Area\nDhaka, Bangladesh',phone:'01700000000',email:'customer@example.com',tax:''},
+  items:[it('Website design & development','Responsive 5-page business website','1','45000','10'),it('কনটেন্ট রাইটিং (বাংলা)','মাসিক ৪টি আর্টিকেল','4','1500',''),it('Monthly maintenance','Updates, backups and support','3','2500','')],
+  gDisc:'500',gType:'fixed',extra:'500',notes:'Sample invoice with fictional data. Replace it with your own details.'})}
+
+/* ---------- init ---------- */
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;set(S,k,e.target.value);if(k.startsWith('cfg.'))store.set('cfg',S.cfg);if(k.startsWith('inv.')||k.startsWith('cfg.'))update()});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;A[b.dataset.act]();const d=b.closest('details');if(d)d.open=false});
+$('#file').addEventListener('change',importFile);
+const BASE=document.title;
+addEventListener('beforeprint',()=>{document.title=S.inv.number||BASE});addEventListener('afterprint',()=>{document.title=BASE});
+
+(function init(){
+ setTheme(store.get('theme',matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+ if(!store.set('probe',1))toast('Browser storage is unavailable, so invoices cannot be saved. Use Export JSON.');
+ S.cfg=coerce(DEF_CFG,store.get('cfg'));S.cust=blankCust();
+ S.customers=arr('customers').map(c=>coerce(blankCust(),c)).filter(c=>c.name||c.company);
+ S.history=arr('history').map(normInv).filter(Boolean);
+ const ct=store.get('counter',{});S.counter=ct&&typeof ct==='object'&&!Array.isArray(ct)?ct:{};
+ $('#editor').append(h('div',{class:'tabs',role:'tablist'},TABS.map(([k,l])=>h('button',{type:'button',role:'tab',id:'t-'+k,'aria-controls':'p-'+k,onclick:()=>tab(k)},l))),buildInvoice(),buildCust(),buildHistory(),buildSettings());
+ S.inv=normInv(store.get('draft'))||(S.history.length?blankInvoice(newNumber()):sample());
+ refreshCustSel();load(S.inv)})();
+</script>
+</body>
+</html>
